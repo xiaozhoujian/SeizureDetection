@@ -1,0 +1,8 @@
+1.在左下角点击 Type here to search
+2.搜索 Anaconda Prompt
+3.在命令行输入 activate videoAI
+3.1.回车
+4.在命令行输入 cd /d D:\videoAI
+4.2.回车
+5.在命令行输入 python outer_drive_screen.py -i 后面加你的一只老鼠的目录 -e 后面加你的英文名字缩写 -n 后面加老鼠的编号
+5.2.回车
