@@ -11,6 +11,7 @@ import random
 import configparser
 import pandas as pd
 import functools
+from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 
 
 def cut_video(excel_path, new_dir, goal_paths):
@@ -29,14 +30,12 @@ def cut_video(excel_path, new_dir, goal_paths):
     end_time = [int(x) for x in table.col_values(2, start_rowx=0, end_rowx=None)]
     # 4th row is the name of the classes
     type_new_ = [x.strip() for x in table.col_values(3, start_rowx=0, end_rowx=None)]
-
     for i in range(rows):
         filename, file_format = origin_video[i].split('.')
         new_name = os.path.join(new_dir, '{}_{}_{}.{}'.format(filename, str(start_time[i]).zfill(2),
                                                               str(end_time[i]).zfill(2), file_format))
         path = os.path.join(new_dir, origin_video[i])
-        duration = end_time[i] - start_time[i]
-        os.system('ffmpeg -y -i %s -ss %i -t %i -codec copy %s' % (path, start_time[i], duration, new_name))
+        ffmpeg_extract_subclip(path, start_time[i], end_time[i], targetname=new_name)
         # all of the moving video will be copy to following path
         shutil.copy(new_name, goal_paths['move'])
         shutil.move(new_name, goal_paths[type_new_[i]])
