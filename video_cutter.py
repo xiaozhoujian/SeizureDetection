@@ -58,10 +58,10 @@ def main():
     config = configparser.ConfigParser()
     config.read('config.ini')
     # all files in this directory
-    source_dir = config['Normal Classification']['dir']
-    cut_excel = config['Normal Classification']['cut_excel_path']
-    if config['Normal Classification'].getboolean('convert'):
-        source_excel = config['Normal Classification']['source_excel_path']
+    source_dir = config['Video Cutter']['dir']
+    cut_excel = config['Video Cutter']['cut_excel_path']
+    if config['Video Cutter'].getboolean('convert'):
+        source_excel = config['Video cutter']['source_excel_path']
         prefix = "_".join(random.choice(os.listdir(source_dir)).split("_")[:-2])
         source2cut(source_excel, cut_excel, prefix)
 

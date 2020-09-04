@@ -52,17 +52,17 @@ def extract(day_dir):
             frame1 = frame1[128:720, 0:1280]
             frame1 = imutils.resize(frame1, width=500)
             gray1 = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
-
+            gray1 = cv2.equalizeHist(gray1)
             frame2 = b2.copy()
             frame2 = frame2[128:720, 0:1280]
             frame2 = imutils.resize(frame2, width=500)
             gray2 = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)
-
+            gray2 = cv2.equalizeHist(gray2)
             frame3 = b3.copy()
             frame3 = frame3[128:720, 0:1280]
             frame3 = imutils.resize(frame3, width=500)
             gray3 = cv2.cvtColor(frame3, cv2.COLOR_BGR2GRAY)
-
+            gray3 = cv2.equalizeHist(gray3)
             diff = cv2.absdiff(gray1, gray2)
             diff1 = cv2.medianBlur(diff, 3)
             diff2 = cv2.absdiff(gray2, gray3)
@@ -76,7 +76,7 @@ def extract(day_dir):
             sum_diff_1 = cv2.countNonZero(thresh1)
 
             sum_diff_2 = sum_diff + sum_diff_1
-            if sum_diff_2 > 500:
+            if sum_diff_2 > 1000:
                 shutil.copy(v_path, out_dir)
             #print(v_path)
             #print('value_diff_f1f2: %s' % sum_diff_2)
