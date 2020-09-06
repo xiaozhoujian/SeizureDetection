@@ -4,7 +4,8 @@ input should be a directory of day
 '''
 
 import getopt
-import os, sys
+import os
+import sys
 import time
 
 
