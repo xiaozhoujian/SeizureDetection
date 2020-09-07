@@ -1,21 +1,32 @@
 import cv2
-import getopt
 import os
-import sys
 import imutils
 import shutil
+import time
+from functools import partial
+from itertools import product
+import multiprocessing
 
 
-def rename_video(day_dir, expert, subject_num):
+def mul_video(h_dir, expert, subject_num, day, hour, minute_file):
+    video_path = os.path.join(h_dir, minute_file)
+    dst_path = os.path.join(h_dir, expert + '_' + subject_num + '_' + day + '_' + hour + '_' + minute_file)
+    os.rename(video_path, dst_path)
+
+
+def rename_video(day_dir, expert, subject_num, mul_num=1):
     _, day = os.path.split(day_dir)
     hours = os.listdir(day_dir)
+    try:
+        multiprocessing.set_start_method('spawn')
+    except RuntimeError:
+        pass
     for hour in hours:
         h_dir = os.path.join(day_dir, hour)
         minutes = os.listdir(h_dir)
-        for minute_file in minutes:
-            video_path = os.path.join(h_dir, minute_file)
-            dst_path = os.path.join(h_dir, expert + '_' + subject_num + '_' + day + '_' + hour + '_' + minute_file)
-            os.rename(video_path, dst_path)
+        func = partial(mul_video, h_dir, expert, subject_num, day, hour)
+        pool = multiprocessing.Pool(mul_num)
+        pool.map(func, minutes)
 
 
 def frame_normalization(frame):
@@ -63,40 +74,41 @@ def is_move(video_file):
         return False
 
 
-def extract_move_video(day_dir):
+def mul_extract(h_dir, out_dir, video_file):
+    video_path = os.path.join(h_dir, video_file)
+    if is_move(video_path):
+        shutil.copy(video_path, out_dir)
+
+
+def extract_move_video(day_dir, remove_source=False, mul_num=1):
     hours = os.listdir(day_dir)
     out_dir = os.path.join(day_dir, 'move')
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
+    try:
+        multiprocessing.set_start_method('spawn')
+    except RuntimeError:
+        pass
     for hour in hours:
         h_dir = os.path.join(day_dir, hour)
         minutes = os.listdir(h_dir)
-        for video_file in minutes:
-            video_path = os.path.join(h_dir, video_file)
-            if is_move(video_path):
-                shutil.copy(video_path, out_dir)
-        shutil.rmtree(h_dir, ignore_errors=True)
+        func = partial(mul_extract, h_dir, out_dir)
+        pool = multiprocessing.Pool(mul_num)
+        pool.map(func, minutes)
+        pool.close()
+        pool.join()
+        if remove_source:
+            shutil.rmtree(h_dir, ignore_errors=True)
 
 
-def main():
-    opts, _ = getopt.getopt(sys.argv[1:], '-h-d:-e:-n:')
-    day_dir = expert = subject_name = ''
-    for opt_name, opt_value in opts:
-        if opt_name == '-d':
-            day_dir = opt_value
-        elif opt_name == '-e':
-            expert = opt_value
-        elif opt_name == '-n':
-            subject_name = opt_value
-
-    if day_dir == '':
-        print('Pleas input video directory for preprocessing.')
-        sys.exit()
-
+def main(day_dir, expert, subject_name):
     rename_video(day_dir, expert, subject_name)
     extract_move_video(day_dir)
 
 
 if __name__ == '__main__':
-    main()
+    start_time = time.time()
+    extract_move_video("/Users/jojen/Workspace/cityU/data/test/2020-05-11")
+    end_time = time.time()
+    print("Cost {} seconds.".format(end_time - start_time))

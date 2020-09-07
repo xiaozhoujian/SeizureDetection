@@ -1,78 +1,75 @@
-'''
+"""
 this is for user to use the model and predict
 input should be a directory of day
-'''
+"""
 
-import getopt
 import os
-import sys
 import time
+from user_screen import rename_video, extract_move_video
+from user_preprocess import video_preprocess
+import configparser
+import user_post
+import user_predict
+import multiprocessing
+from functools import partial
 
 
-pj_dir = os.getcwd()
-rename_extract_exe = os.path.join(pj_dir, 'user_screen.py')
-preprocess_exe = os.path.join(pj_dir, 'user_preprocess.py')
-predict_exe = os.path.join(pj_dir, 'user_predict.py')
-merge_exe = os.path.join(pj_dir, 'user_merge.py')
-extract_exe = os.path.join(pj_dir, 'user_extraction.py')
-post_exe = os.path.join(pj_dir, 'user_post.py')
-annotation_path = os.path.join(pj_dir, 'mice_labels', 'class.txt')
-model_load = os.path.join(pj_dir, 'results_mice_resnext101', 'model_mice_0715.pth')
+def main():
+    st = time.time()
+    pj_dir = os.path.dirname(os.path.realpath(__file__))
+    config = configparser.ConfigParser()
+    config.read(os.path.join(pj_dir, 'config.ini'))
+    day_dir = config.get('Extract Move', 'dir')
+    mul_num = config.getint('Others', 'mul_num')
+    if config.getboolean('Pipeline', 'extract_move'):
+        expert = config.get('Extract Move', 'expert')
+        subject_name = config.get('Extract Move', 'subject_name')
+        print('Start extract move video')
+        # extract the move video
+        rename_video(day_dir, expert, subject_name, mul_num)
+        extract_move_video(day_dir, remove_source=config.getboolean('Extract Move', 'remove_source'), mul_num=mul_num)
+        print('Extract move video completed.')
+    if config.getboolean('Pipeline', 'preprocess'):
+        print('Start preprocess video')
+        video_preprocess(day_dir)
+        print('Preprocess video complete')
+    if config.getboolean('Pipeline', 'predict'):
+        hour_list = os.listdir(day_dir)
+        model = user_predict.get_pretrained_model()
+        sample_size = config.getint('Network', 'sample_size')
+        sample_duration = config.getint('Network', 'sample_duration')
+        separator = config.get('Others', 'separator')
+        for hour in hour_list:
+            predict_dir = os.path.join(day_dir, hour)
+            print('Predicting videos in {}'.format(predict_dir))
+            result_path = os.path.join(day_dir, hour + '_predict.csv')
+            try:
+                multiprocessing.set_start_method('spawn')
+            except RuntimeError:
+                pass
+            video_list = [os.path.join(predict_dir, x) for x in os.listdir(predict_dir)]
+            func = partial(user_predict.main, model, sample_size, sample_duration)
+            pool = multiprocessing.Pool(mul_num)
+            results = pool.map(func, video_list)
+            pool.close()
+            pool.join()
+            with open(result_path, 'w') as f:
+                for result in results:
+                    video_name = result[0].split(separator)[-1]
+                    f.write("{},{}\n".format(video_name, result[1]))
+            # for file in video_list:
+            #     user_predict.main(inputs=os.path.join(predict_dir, file),  model=model,
+            #                       sample_size=sample_size, sample_duration=sample_duration)
+            print('-------------------------------------------------------------\n')
 
-opts, args = getopt.getopt(sys.argv[1:], '-h-d:-e:-n:')
-day_dir = ''
-num = ''
-exper = ''
-pj_dir = os.getcwd()
-for opt_name, opt_value in opts:
-    if opt_name == '-d':
-        day_dir = opt_value
-    if opt_name == '-e':
-        exper = opt_value
-    if opt_name == '-n':
-        num = opt_value
+    user_post.main(day_dir)
 
-if day_dir == '':
-    print('Please input day video directory.')
-    sys.exit()
-
-
-st = time.time()
-print('start predicting.........')
-rename_extract_cmd = 'python ' + rename_extract_exe + ' -d ' + day_dir + ' -e ' + exper + ' -n ' + num
-os.system(rename_extract_cmd)
-
-hour_list = os.listdir(day_dir)
-hour_list.sort()
-
-preprocess_cmd = 'python ' + preprocess_exe + ' -d ' + day_dir
-print(preprocess_cmd)
-os.system(preprocess_cmd)
-
-for h_dir in hour_list:
-    predict_dir = os.path.join(day_dir, h_dir)
-    print('Predicting videos in ' + predict_dir)
-    save_path = os.path.join(day_dir, h_dir + '_predict.txt')
-    video_list = os.listdir(predict_dir)
-    video_list.sort()
-    for file in video_list:
-        predict_cmd = 'python user_predict.py --n_classes 2 ' \
-                      '--model resnext --model_depth 101 --sample_duration 64 ' \
-                      '--annotation_path ' + annotation_path  + \
-                      ' --resume_path1 ' + model_load +\
-                      ' --inputs ' + os.path.join(predict_dir, file) + \
-                      ' --result_path ' + save_path
-        #print(predict_cmd)
-        os.system(predict_cmd)
-    print('-------------------------------------------------------------')
-    print()
+    et = time.time()
+    used_t = (et-st)/60
+    print('Complete Prediction!')
+    print("Cost {} minutes".format(used_t))
 
 
-post_cmd = 'python ' + post_exe + ' -d ' + day_dir
-print(post_cmd)
-os.system(post_cmd)
+if __name__ == '__main__':
+    main()
 
-et = time.time()
-used_t = (et-st)/60
-print('Prediction compeleted')
-print('Used time :' + str(used_t) + 'min')
