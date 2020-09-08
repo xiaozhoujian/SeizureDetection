@@ -54,10 +54,10 @@ def main(model, sample_size, sample_duration, inputs):
         blob = np.expand_dims(blob, axis=0)
 
         # pass the blob through the network to obtain our human activity recognition predictions
-        inputs = torch.from_numpy(blob)
-        outputs = model(inputs)
+        model_inputs = torch.from_numpy(blob)
+        outputs = model(model_inputs)
         label = np.array(torch.mean(outputs, dim=0, keepdim=True).topk(1)[1].cpu().data[0])
-        labels_list.append(label)
+        labels_list.append(label[0])
         # f.write(",{}".format(label[0]))
 
 

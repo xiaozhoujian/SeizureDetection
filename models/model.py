@@ -3,6 +3,7 @@ import torch
 from torch import nn
 from models import resnet
 from models.resnet import get_fine_tuning_parameters
+import os
 
 
 def generate_model(config):
@@ -14,8 +15,10 @@ def generate_model(config):
             sample_duration=config.getint('Network', 'sample_duration'),
             input_channels=config.getint('Network', 'input_channels'),
             )
-    if config.getboolean('Network', 'cuda'):
+    if config.getboolean('Network', 'use_cuda'):
         model = model.cuda()
+    else:
+        os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
     model = nn.DataParallel(model)
     pretrain_path = config.get('Network', 'pretrain_path')
     if pretrain_path:
