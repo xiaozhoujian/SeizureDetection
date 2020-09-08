@@ -62,7 +62,7 @@ def main():
             #                       sample_size=sample_size, sample_duration=sample_duration)
             print('-------------------------------------------------------------\n')
 
-    user_post.main(day_dir)
+        user_post.main(day_dir)
 
     et = time.time()
     used_t = (et-st)/60
