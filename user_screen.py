@@ -1,10 +1,8 @@
 import cv2
 import os
-import imutils
 import shutil
 import time
 from functools import partial
-from itertools import product
 import multiprocessing
 
 
@@ -31,7 +29,8 @@ def rename_video(day_dir, expert, subject_num, mul_num=1):
 
 def frame_normalization(frame):
     frame = frame[128:720, 0:1280]
-    frame = imutils.resize(frame, width=500)
+    # frame = imutils.resize(frame, width=500)
+    frame = cv2.resize(frame, (500, 231))
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     # normalizes the brightness and increases the contrast of the image.
     frame = cv2.equalizeHist(frame)
@@ -93,11 +92,15 @@ def extract_move_video(day_dir, remove_source=False, mul_num=1):
     for hour in hours:
         h_dir = os.path.join(day_dir, hour)
         minutes = os.listdir(h_dir)
-        func = partial(mul_extract, h_dir, out_dir)
-        pool = multiprocessing.Pool(mul_num)
-        pool.map(func, minutes)
-        pool.close()
-        pool.join()
+        if mul_num == 1:
+            for video_file in minutes:
+                mul_extract(h_dir, out_dir, video_file)
+        else:
+            func = partial(mul_extract, h_dir, out_dir)
+            pool = multiprocessing.Pool(mul_num)
+            pool.map(func, minutes)
+            pool.close()
+            pool.join()
         if remove_source:
             shutil.rmtree(h_dir, ignore_errors=True)
 

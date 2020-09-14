@@ -4,6 +4,7 @@ import cv2
 from models.model import generate_model
 import torch
 import configparser
+import decord
 
 
 def get_pretrained_model():
@@ -43,6 +44,7 @@ def main(model, sample_size, sample_duration, inputs):
             if not grabbed:
                 print("Predict result of {} is {}".format(inputs, labels_list))
                 return inputs, labels_list
+            # resize the height to 112 pixels, width is also changed, it's down sample
             frame = imutils.resize(frame, height=112)
             frames.append(frame)
 

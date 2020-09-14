@@ -8,7 +8,6 @@ import multiprocessing
 from functools import partial
 import time
 
-
 def mul_preprocess(h_dir, hour, fourcc, video_file):
     video_name = video_file.split('.')[0]
     video_path = os.path.join(h_dir, video_file)
@@ -46,15 +45,19 @@ def video_preprocess(day_dir, mul_num=1):
     for hour in hours:
         h_dir = os.path.join(day_dir, hour)
         minutes = os.listdir(h_dir)
-        pool = multiprocessing.Pool(mul_num)
-        func = partial(mul_preprocess, h_dir, hour, fourcc)
-        pool.map(func, minutes)
-        pool.close()
-        pool.join()
+        if mul_num == 1:
+            for video_file in minutes:
+                mul_preprocess(h_dir, hour, fourcc, video_file)
+        else:
+            pool = multiprocessing.Pool(mul_num)
+            func = partial(mul_preprocess, h_dir, hour, fourcc)
+            pool.map(func, minutes)
+            pool.close()
+            pool.join()
 
 
 if __name__ == '__main__':
     start_time = time.time()
-    video_preprocess("/Users/jojen/Workspace/cityU/data/test/2020-05-11")
+    video_preprocess("/Users/jojen/Workspace/cityU/data/test/2020-05-10")
     end_time = time.time()
     print("Cost {} seconds.".format(end_time - start_time))
