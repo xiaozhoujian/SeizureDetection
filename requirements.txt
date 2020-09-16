@@ -1,3 +1,4 @@
+imageio
 decord
 altgraph==0.17
 certifi==2020.4.5.1
