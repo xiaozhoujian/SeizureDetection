@@ -50,7 +50,7 @@ def main(model, sample_size, sample_duration, inputs):
 
         # now that our frames array is filled we can construct our blob
         blob = cv2.dnn.blobFromImages(frames, 1.0, size=(sample_size, sample_size), mean=(114.7748, 107.7354, 99.4750),
-                                      swapRB=True, crop=False)
+                                      swapRB=True, crop=True)
 
         blob = np.transpose(blob, (1, 0, 2, 3))
         blob = np.expand_dims(blob, axis=0)

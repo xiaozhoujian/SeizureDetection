@@ -42,7 +42,8 @@ def convert2of(video_path, model_path, dst_path):
     images = images.to("cpu")
     padder = InputPadder(images.shape)
     images = padder.pad(images)[0]
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    # fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    fourcc = int(cap.get(cv2.CAP_PROP_FOURCC))
     fps = cap.get(cv2.CAP_PROP_FPS)
 
     image1 = images[0, None]
@@ -52,8 +53,8 @@ def convert2of(video_path, model_path, dst_path):
         flow_low, flow_up = model(image1, image2, iters=20, test_mode=True)
     print("Each prediction cost {}s".format(time.time() - start_t))
     output_image = viz(image1, flow_up)
-    cv2.imshow('', cv2.cvtColor(output_image, cv2.COLOR_BGR2RGB))
-    cv2.waitKey()
+    # cv2.imshow('', output_image)
+    # cv2.waitKey()
     print("Prepare finished")
     out = cv2.VideoWriter(dst_path, fourcc, fps, (output_image.shape[0], output_image.shape[1]))
     with torch.no_grad():

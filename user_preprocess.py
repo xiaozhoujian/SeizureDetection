@@ -16,9 +16,10 @@ def mul_preprocess(h_dir, hour, video_file):
     output_path = os.path.join(h_dir, "{}_{}.mp4".format(hour, video_name))
 
     reader = imageio.get_reader(video_path)
-    writer = imageio.get_writer(output_path, fps=reader.get_meta_data()['fps'])
+    writer = imageio.get_writer(output_path, fps=reader.get_meta_data()['fps'], **{'macro_block_size': 1})
+    # writer = imageio.get_writer(output_path, fps=reader.get_meta_data()['fps'])
     for _, im in enumerate(reader):
-        im = cv2.resize(im, (464, 256))
+        im = cv2.resize(im, (454, 256))
         gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
         eq = cv2.equalizeHist(gray)
         eq_1 = cv2.cvtColor(eq, cv2.COLOR_GRAY2BGR)
