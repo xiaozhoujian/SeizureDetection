@@ -16,10 +16,10 @@ def mul_preprocess(h_dir, hour, video_file):
     output_path = os.path.join(h_dir, "{}_{}.mp4".format(hour, video_name))
 
     reader = imageio.get_reader(video_path)
-    writer = imageio.get_writer(output_path, fps=reader.get_meta_data()['fps'], **{'macro_block_size': 1})
+    writer = imageio.get_writer(output_path, fps=reader.get_meta_data()['fps'], **{'macro_block_size': 1, 'pixelformat': 'yuv444p'})
     # writer = imageio.get_writer(output_path, fps=reader.get_meta_data()['fps'])
     for _, im in enumerate(reader):
-        im = cv2.resize(im, (454, 256))
+        im = cv2.resize(im, (455, 256))
         gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
         eq = cv2.equalizeHist(gray)
         eq_1 = cv2.cvtColor(eq, cv2.COLOR_GRAY2BGR)
@@ -51,6 +51,6 @@ def video_preprocess(day_dir, mul_num=1):
 
 if __name__ == '__main__':
     start_time = time.time()
-    video_preprocess("/Users/jojen/Workspace/cityU/data/test/2020-05-11")
+    video_preprocess("/data/jojen/test_resize", mul_num=1)
     end_time = time.time()
     print("Cost {} seconds.".format(end_time - start_time))
