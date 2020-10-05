@@ -4,6 +4,7 @@ import os
 import numpy as np
 import cv2
 import imutils
+from utils import get_path_leaf
 
 
 def get_test_video_online(config, video_path):
@@ -53,8 +54,9 @@ class MiceOnline(Dataset):
         """
         self.train_val_test = train
         self.config = config
-        
-        with open(os.path.join(config.get('Network', 'annotation_path'), "class.txt")) as lab_file:
+        cur_dir = os.path.dirname(os.path.realpath(__file__))
+        annotation_path = os.path.join(cur_dir, config.get('Path', 'annotation_path'))
+        with open(annotation_path) as lab_file:
             self.lab_names = [line.strip('\n').split(' ')[1] for line in lab_file]
 
         # Number of classes
@@ -86,4 +88,5 @@ class MiceOnline(Dataset):
 
         if self.train_val_test == 0:
             clip = get_test_video_online(self.config, video_path)
-            return clip, label_id, video_path.split(self.config.get('Others', 'separator'))[-1]
+            video_name = get_path_leaf(video_path)
+            return clip, label_id, video_name

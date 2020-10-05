@@ -38,7 +38,8 @@ def get_pretrained_model(config):
     cuda = True if torch.cuda.is_available() else False
     arch = '{}-{}'.format(config.get('Network', 'model'), config.get('Network', 'model_depth'))
     model, _ = generate_model(config)
-    resume_path = config.get('Network', 'resume_path')
+    cur_dir = os.path.dirname(os.path.realpath(__file__))
+    resume_path = os.path.join(cur_dir, config.get('Path', 'resume_path'))
     if resume_path:
         print('Loading checkpoint {}'.format(resume_path))
         if cuda:
@@ -63,7 +64,7 @@ def predict(config, model, file_list_path, pj_dir):
     print("Length of test data loader is {}".format(len(test_data_loader)))
 
     accuracies = AverageMeter()
-    result_path = os.path.join(config.get('Extract Move', 'dir'), 'result_{}'.format(dataset))
+    result_path = os.path.join(config.get('Path', 'source_dir'), 'result_{}'.format(dataset))
     if not os.path.exists(result_path):
         os.makedirs(result_path)
 
@@ -88,42 +89,38 @@ def predict(config, model, file_list_path, pj_dir):
                 inputs = inputs.cuda()
             outputs = model(inputs)
             pre_label = torch.sum(outputs.topk(1)[1]).item()
-            if pre_label > 1:
-                import ipdb
-                ipdb.set_trace()
+            # if pre_label > 1:
+            #     import ipdb
+            #     ipdb.set_trace()
             prob_outputs = softmax(outputs)
-            a = -1
+            prob = prob_outputs.cpu().data.numpy()
             pre_control = []
-            c = -1
+            index = -1
+            # Belong is post process
             if targets.item() == 0:
-                a = a + 1
-                c = c + 1
+                index += 1
                 pre_control.append(pre_label)
 
                 if pre_label > 1:
                     for h in range(10):
-                        prob = prob_outputs.cpu().data.numpy()
-                        if prob[h][1] - prob[h][0] < 0.3:
-                            # if prob of case bigger than control and their gap smaller than 0.3
+                        if 0 < prob[h][1] - prob[h][0] < 0.3:
+                            # if prob of case bigger than control and their gap smaller than 0.3, it should be control
                             pre_label = pre_label - 1
                     if pre_label > 1:
+                        # acc = 0 means it's a case
                         acc = 0
-
-                        # line = 'name: {}\nprob:\n{}'.format(video_name[0], (prob * 100).astype(np.uint8))
                         prob_log.write('name: {}\nprob:\n{}\n'.format(video_name[0], (prob * 100).astype(np.uint8)))
                         prob_log.flush()
 
-                        shutil.copy(linecache.getline(file_list_path, c + 1).strip()[:-3], result_path)
+                        shutil.copy(linecache.getline(file_list_path, index + 1).strip()[:-3], result_path)
                     else:
                         acc = 1
-                elif (pre_label > 5 and pre_control[a - 1] > 2) or pre_label == 0:
+                elif (pre_label > 5 and pre_control[index - 1] > 2) or pre_label == 0:
+                    # if current have 5+ case frames and previous predict label bigger 2
                     acc = 1
 
             accuracies.update(acc, inputs.size(0))
 
-            # line = "Video[" + str(i) + "] :  " + "\t predict = " + str(pre_label) + "\t true = " + \
-            #        str(int(targets[0])) + "\t acc = " + str(accuracies.avg)
-            # f_w.write(line + '\n')
             f_w.write("Video[{}]:\t predict = {}\t true = {}\t acc = {}\n".format(i, pre_label,
                                                                                   targets[0], accuracies.avg))
             f_w.flush()
