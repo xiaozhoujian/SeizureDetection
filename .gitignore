@@ -3,7 +3,7 @@
 ~$*
 __pycache__/
 RE.txt
-cut.xlsx
+video_cutter/cut.xlsx
 *.swp
 test.py
 .DS_Store
