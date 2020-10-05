@@ -18,7 +18,7 @@ def main():
     config.read(os.path.join(pj_dir, 'config.ini'))
     day_dir = config.get('Path', 'source_dir')
 
-    if day_dir.split()
+    # if day_dir.split()
     mul_num = config.getint('Preprocess', 'mul_num')
     expert = config.get('Preprocess', 'expert')
     subject_name = config.get('Preprocess', 'subject_name')
