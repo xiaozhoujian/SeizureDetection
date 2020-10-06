@@ -62,7 +62,7 @@ def main():
             os.makedirs(res_video_dir)
         for day_dir in day_dirs:
             workflow(day_dir, config, pj_dir)
-            date_video_dir = os.path.join(day_dir, 'result/videos')
+            date_video_dir = os.path.join(day_dir, 'result', 'videos')
             res_videos = os.listdir(date_video_dir)
             for video in res_videos:
                 shutil.copy(os.path.join(date_video_dir, video), res_video_dir)

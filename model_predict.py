@@ -64,7 +64,7 @@ def predict(config, model, file_list_path, pj_dir):
     print("Length of test data loader is {}".format(len(test_data_loader)))
 
     accuracies = AverageMeter()
-    result_path = os.path.join(config.get('Path', 'source_dir'), 'result_{}'.format(dataset))
+    result_path = os.path.join(config.get('Path', 'source_dir'), 'result')
     res_video_dir = os.path.join(result_path, 'res_videos')
     if not os.path.exists(res_video_dir):
         os.makedirs(res_video_dir)
