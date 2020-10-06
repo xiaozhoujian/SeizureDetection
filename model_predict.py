@@ -65,8 +65,9 @@ def predict(config, model, file_list_path, pj_dir):
 
     accuracies = AverageMeter()
     result_path = os.path.join(config.get('Path', 'source_dir'), 'result_{}'.format(dataset))
-    if not os.path.exists(result_path):
-        os.makedirs(result_path)
+    res_video_dir = os.path.join(result_path, 'res_videos')
+    if not os.path.exists(res_video_dir):
+        os.makedirs(res_video_dir)
 
     softmax = nn.Softmax(dim=1)
     sample_duration = config.getint('Network', 'sample_duration')
@@ -112,7 +113,7 @@ def predict(config, model, file_list_path, pj_dir):
                         prob_log.write('name: {}\nprob:\n{}\n'.format(video_name[0], (prob * 100).astype(np.uint8)))
                         prob_log.flush()
 
-                        shutil.copy(linecache.getline(file_list_path, index + 1).strip()[:-3], result_path)
+                        shutil.copy(linecache.getline(file_list_path, index + 1).strip()[:-3], res_video_dir)
                     else:
                         acc = 1
                 elif (pre_label > 5 and pre_control[index - 1] > 2) or pre_label == 0:
