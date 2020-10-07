@@ -78,6 +78,8 @@ def predict(config, model, file_list_path, pj_dir):
         shutil.copyfile(os.path.join(pj_dir, 'config.ini'), os.path.join(result_path, 'config.ini'))
         f_w = open(os.path.join(result_path, 'params.log'), 'w')
         prob_log = open(os.path.join(result_path, 'prob.log'), 'w')
+        index = -1
+        pre_control = []
         for i, (clip, targets, video_name) in enumerate(test_data_loader):
             clip = torch.squeeze(clip)
             inputs = torch.Tensor(int(clip.shape[1] / sample_duration) + 1, 3, sample_duration, sample_size, sample_size)
@@ -95,9 +97,7 @@ def predict(config, model, file_list_path, pj_dir):
             #     ipdb.set_trace()
             prob_outputs = softmax(outputs)
             prob = prob_outputs.cpu().data.numpy()
-            pre_control = []
-            index = -1
-            # Belong is post process
+            # Below is post process
             if targets.item() == 0:
                 index += 1
                 pre_control.append(pre_label)
@@ -112,7 +112,8 @@ def predict(config, model, file_list_path, pj_dir):
                         acc = 0
                         prob_log.write('name: {}\nprob:\n{}\n'.format(video_name[0], (prob * 100).astype(np.uint8)))
                         prob_log.flush()
-
+                        # import ipdb
+                        # ipdb.set_trace()
                         shutil.copy(linecache.getline(file_list_path, index + 1).strip()[:-3], res_video_dir)
                     else:
                         acc = 1
