@@ -93,12 +93,12 @@ class Console(tk.Frame):
                 pass
         self.running = False
 
-    def execute(self, command):
+    def execute(self):
         """Keeps inserting line by line into self.text
         the output of the execution of self.command"""
         try:
             # self.popen is a Popen object
-            self.popen = Popen(command.split(), stdout=PIPE, bufsize=1)
+            self.popen = Popen(self.command.split(), stdout=PIPE, bufsize=1)
             lines_iterator = iter(self.popen.stdout.readline, b"")
 
             # poll() return None if the process has not terminated
@@ -106,10 +106,10 @@ class Console(tk.Frame):
             while self.popen.poll() is None:
                 for line in lines_iterator:
                     self.show(line.decode("utf-8"))
-            self.show("Process " + command + " terminated.\n\n")
+            self.show("Process " + self.command + " finihsed.\n\n")
 
         except FileNotFoundError:
-            self.show("Unknown command: " + command + "\n\n")
+            self.show("Unknown command: " + self.command + "\n\n")
         except IndexError:
             self.show("No command entered\n\n")
 
@@ -215,18 +215,15 @@ def run(source_dir_text, output_dir_text, expert_entry, subject_entry, preproces
     if not source_dir or not output_dir or not expert or not subject:
         messagebox.showerror(title="Information Error", message="You have to fill all needed information.")
         return False
-    # print("source_dir: {}\noutput_dir: {}\nexpert: {}\nsubject: {}\npreprocess_var: {}\npredict_var: {}\n".format(
-    #     source_dir, output_dir, expert, subject, preprocess_var, predict_var))
-    # epilepsy_recognition.main(source_dir, output_dir, expert, subject, extract_move, preprocess_var, predict_var)
     pj_dir = os.path.dirname(os.path.realpath(__file__))
     main_path = os.path.join(pj_dir, "epilepsy_recognition.py")
-    command = "python {} --source-dir {} --output-dir {} --expert {} --subject {}".format(
+    console.command = "python {} --source-dir {} --output-dir {} --expert {} --subject {}".format(
         main_path, source_dir, output_dir, expert, subject)
     if preprocess_var:
-        command += " --preprocess"
+        console.command += " --preprocess"
     if predict_var:
-        command += " --predict"
-    console.execute(command)
+        console.command += " --predict"
+    console.start_thread()
     return True
 
 
