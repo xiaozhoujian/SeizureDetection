@@ -205,6 +205,12 @@ def select_directory(txt_label):
 
 
 def run(source_dir_text, output_dir_text, expert_entry, subject_entry, preprocess_var, predict_var, console):
+    if console.running:
+        result = messagebox.askquestion("Existed running program",
+                                        "There is a running program now, if you want to "
+                                        "terminate it and start a new program?")
+        if result != 'yes':
+            return False
     source_dir = source_dir_text["text"]
     output_dir = output_dir_text["text"]
     expert = expert_entry.get().strip()
