@@ -55,7 +55,8 @@ class MiceOnline(Dataset):
         self.train_val_test = train
         self.config = config
         cur_dir = os.path.dirname(os.path.realpath(__file__))
-        annotation_path = os.path.join(cur_dir, config.get('Path', 'annotation_path'))
+        split_path = os.path.split(config.get('Path', 'annotation_path'))
+        annotation_path = os.path.join(cur_dir, *split_path)
         with open(annotation_path) as lab_file:
             self.lab_names = [line.strip('\n').split(' ')[1] for line in lab_file]
 

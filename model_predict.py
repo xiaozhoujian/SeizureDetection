@@ -10,17 +10,18 @@ import linecache
 from dataset.dataset_val_min import MiceOnline
 
 
-def make_list(test_name, day_dir):
+def make_list(test_name, output_dir, date):
     """
     Make a list according to the intermediate directory under the day_dir
     :param test_name: string, the name of test, with the format of expert_subject_name_date.txt
-    :param day_dir: string, the day dir which contains all the videos
+    :param output_dir: string, the output dir which contains all the intermediate and result files
+    :param date: string, the date of these specific videos
     :return: string, the path to the video list file
     """
     print('Making list of {}'.format(test_name))
-    file_list_path = os.path.join(day_dir, test_name)
+    file_list_path = os.path.join(output_dir, test_name)
     file = open(file_list_path, 'w')
-    intermediate_dir = os.path.join(day_dir, 'intermediate')
+    intermediate_dir = os.path.join(output_dir, 'intermediate', date)
     for video_file in os.listdir(intermediate_dir):
         line = os.path.join(intermediate_dir, video_file) + ' #0'
         file.write(line)
@@ -39,7 +40,8 @@ def get_pretrained_model(config):
     arch = '{}-{}'.format(config.get('Network', 'model'), config.get('Network', 'model_depth'))
     model, _ = generate_model(config)
     cur_dir = os.path.dirname(os.path.realpath(__file__))
-    resume_path = os.path.join(cur_dir, config.get('Path', 'resume_path'))
+    split_path = os.path.split(config.get('Path', 'resume_path'))
+    resume_path = os.path.join(cur_dir, *split_path)
     if resume_path:
         print('Loading checkpoint {}'.format(resume_path))
         if cuda:
@@ -54,8 +56,7 @@ def get_pretrained_model(config):
     return model
 
 
-def predict(config, model, file_list_path, pj_dir):
-    dataset = config.get('Network', 'dataset')
+def predict(config, model, file_list_path, pj_dir, output_dir, date):
     test_data = MiceOnline(train=0, config=config, file_list_path=file_list_path)
     print('Preparing data loader...')
     test_data_loader = DataLoader(test_data, batch_size=config.getint('Network', 'batch_size'),
@@ -64,7 +65,8 @@ def predict(config, model, file_list_path, pj_dir):
     print("Length of test data loader is {}".format(len(test_data_loader)))
 
     accuracies = AverageMeter()
-    result_path = os.path.join(config.get('Path', 'source_dir'), 'result')
+    # result_path = os.path.join(config.get('Path', 'source_dir'), 'result')
+    result_path = os.path.join(output_dir, "result", date)
     res_video_dir = os.path.join(result_path, 'res_videos')
     if not os.path.exists(res_video_dir):
         os.makedirs(res_video_dir)
