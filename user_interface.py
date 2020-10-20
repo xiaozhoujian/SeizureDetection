@@ -2,10 +2,11 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
 from tkinter.filedialog import askdirectory
-import epilepsy_recognition
 import os
 import time
 import threading
+from tkinter.scrolledtext import ScrolledText
+from subprocess import Popen, PIPE
 
 
 class Console(tk.Frame):
