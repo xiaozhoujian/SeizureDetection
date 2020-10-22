@@ -179,6 +179,10 @@ def mul_preprocess(intermediate_dir, expert, subject_name, day, hour, video_path
         expert, subject_name, day, hour, minute
     ))
     reader = imageio.get_reader(video_path)
+    video_format = video_path.split('.')[-1]
+    if video_format != 'mp4' or reader.get_meta_data()['duration'] < 59:
+        os.remove(video_path)
+        return None
     writer = imageio.get_writer(preprocessed_file_path, fps=reader.get_meta_data()['fps'],
                                 **{'macro_block_size': 1, 'pixelformat': 'yuv444p', 'ffmpeg_log_level': 'quiet'})
     for _, im in enumerate(reader):
