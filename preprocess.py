@@ -172,6 +172,9 @@ def is_move(video_file):
 
 
 def mul_preprocess(intermediate_dir, expert, subject_name, day, hour, video_path):
+    if not video_path.endswith('mp4'):
+        os.remove(video_path)
+        return None
     if not is_move(video_path):
         return None
     minute = get_path_leaf(video_path).split('.')[0]
