@@ -54,28 +54,28 @@ def source2cut(source_excel, cut_excel, prefix):
     df.to_excel(cut_excel, index=False, header=False)
 
 
-def main():
-    config = configparser.ConfigParser()
-    config.read('config.ini')
-    # all files in this directory
-    source_dir = config['Video Cutter']['dir']
-    cut_excel = config['Video Cutter']['cut_excel_path']
-    if config['Video Cutter'].getboolean('convert'):
-        source_excel = config['Video cutter']['source_excel_path']
-        prefix = "_".join(random.choice(os.listdir(source_dir)).split("_")[:-2])
-        source2cut(source_excel, cut_excel, prefix)
-
-    new_dir = source_dir
-    classes = ['move', 'grooming', 's-moving', 'standing_eating', 'walking', 'digging', 'misc_movement', 'epilepsy']
-    # all cut files will move to these directories
-    goal_paths = {x: os.path.join(new_dir, x) for x in classes}
-    for goal_path in goal_paths.values():
-        if not os.path.exists(goal_path):
-            os.makedirs(goal_path)
-
-    cut_video(cut_excel, new_dir, goal_paths)
-    print('Videos cut finished!')
-
-
-if __name__ == "__main__":
-    main()
+# def main():
+#     config = configparser.ConfigParser()
+#     config.read('config.ini')
+#     # all files in this directory
+#     source_dir = config['Video Cutter']['dir']
+#     cut_excel = config['Video Cutter']['cut_excel_path']
+#     if config['Video Cutter'].getboolean('convert'):
+#         source_excel = config['Video cutter']['source_excel_path']
+#         prefix = "_".join(random.choice(os.listdir(source_dir)).split("_")[:-2])
+#         source2cut(source_excel, cut_excel, prefix)
+#
+#     new_dir = source_dir
+#     classes = ['move', 'grooming', 's-moving', 'standing_eating', 'walking', 'digging', 'misc_movement', 'epilepsy']
+#     # all cut files will move to these directories
+#     goal_paths = {x: os.path.join(new_dir, x) for x in classes}
+#     for goal_path in goal_paths.values():
+#         if not os.path.exists(goal_path):
+#             os.makedirs(goal_path)
+#
+#     cut_video(cut_excel, new_dir, goal_paths)
+#     print('Videos cut finished!')
+#
+#
+# if __name__ == "__main__":
+#     main()

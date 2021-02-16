@@ -47,10 +47,11 @@ def is_move(video_file):
 
     try:
         start_frame = frame_normalization(start_frame)
+        middle_frame = frame_normalization(middle_frame)
+        end_frame = frame_normalization(end_frame)
     except:
         print(video_file)
-    middle_frame = frame_normalization(middle_frame)
-    end_frame = frame_normalization(end_frame)
+        return False
 
     overall_diff_count = get_diff_count(start_frame, middle_frame) + get_diff_count(middle_frame, end_frame)
     if overall_diff_count > 1000:
@@ -65,21 +66,19 @@ def mul_preprocess(intermediate_dir, expert, subject_name, day, hour, video_path
         return None
     if not is_move(video_path):
         return None
-    minute = get_path_leaf(video_path).split('.')[0]
+    minute = get_path_leaf(video_path).split('.')[0][-2:]
     preprocessed_file_path = os.path.join(intermediate_dir, "{}_{}_{}_{}_{}.mp4".format(
         expert, subject_name, day, hour, minute
     ))
     reader = imageio.get_reader(video_path)
-    video_format = video_path.split('.')[-1]
-    if video_format != 'mp4' or reader.get_meta_data()['duration'] < 59:
+    if reader.get_meta_data()['duration'] < 59:
         reader.close()
         os.remove(video_path)
         return None
     writer = imageio.get_writer(preprocessed_file_path, fps=reader.get_meta_data()['fps'],
-                                **{'macro_block_size': 1, 'pixelformat': 'yuv444p', 'ffmpeg_log_level': 'quiet'})
+                                **{'ffmpeg_log_level': 'panic', 'macro_block_size': None})
     for _, im in enumerate(reader):
-        im = cv2.resize(im, (455, 256))
-        # im = cv2.resize(im, (640, 368))
+        im = cv2.resize(im, (640, 360))
         gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
         eq = cv2.equalizeHist(gray)
         eq_1 = cv2.cvtColor(eq, cv2.COLOR_GRAY2BGR)
@@ -102,10 +101,6 @@ def preprocess(day_dir, expert, subject_num, output_dir, mul_num=1):
     for dir_name in all_dir:
         if dir_name.isdigit():
             hours.append(dir_name)
-    try:
-        multiprocessing.set_start_method('spawn')
-    except RuntimeError:
-        pass
     intermediate_dir = os.path.join(output_dir, 'intermediate', day)
     if not os.path.exists(intermediate_dir):
         os.makedirs(intermediate_dir)
