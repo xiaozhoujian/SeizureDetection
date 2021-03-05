@@ -46,6 +46,6 @@ Before running the scripts, be sure you have downloaded the pretrained model and
 $ cd SeizureDetection
 $ cat requirements.txt | xargs -n 1 pip install 
 ```
-Finally, modify the section \[Path, source_dir\] of the `config.ini` according to your need.
-Then run `python main.py`
+Then modify the shell script `batch_process.sh` according to your requirements. Be careful, some parameters is required, like --source-dir, --output-dir, --expert, --subject_name.
+To further know what are these parameters stand for, you can easily type `python epilepsy_recognition.py --help` or check the arguments file `opts.py` directly.
 
