@@ -59,7 +59,7 @@ def get_pretrained_model(args):
     return model
 
 
-def predict(args, model, file_list_path, pj_dir, output_dir, date,
+def predict(args, model, file_list_path, output_dir, date,
             result_name="result", post_process=False, svm=False):
     test_data = MiceOnline(train=0, args=args, file_list_path=file_list_path)
     print('Preparing data loader...')
@@ -106,8 +106,8 @@ def predict(args, model, file_list_path, pj_dir, output_dir, date,
                     pre_label = clf.predict((prob.reshape(1, 20)*100).astype(np.uint8))[0]
                 else:
                     continue
-                if pre_label == 0:
-                    # in svm pre_label == 0 means it's case
+                if pre_label == 1:
+                    # in svm pre_label == 1 means it's case
                     prob_log.write('name: {}\nprob:\n{}\n'.format(video_name[0], (prob * 100).astype(np.uint8)))
                     prob_log.flush()
                     shutil.copy(linecache.getline(file_list_path, index + 1).strip()[:-3], res_video_dir)
@@ -116,7 +116,7 @@ def predict(args, model, file_list_path, pj_dir, output_dir, date,
                 if post_process:
                     if pre_label >= 1:
                         for h in range(10):
-                            if 0 < prob[h][1] - prob[h][0] < 0.3:
+                            if 0 < prob[h][1] - prob[h][0] < args.threshold:
                                 # if prob of case bigger than control and their gap smaller than 0.3, it should be control
                                 pre_label -= 1
                     if pre_label > 1:

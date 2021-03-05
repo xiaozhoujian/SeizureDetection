@@ -15,7 +15,7 @@ from opts import parse_args
 import multiprocessing
 
 
-def workflow(day_dir, args, pj_dir):
+def workflow(day_dir, args):
     st = time.time()
     mul_num = args.mul_num
     expert = args.expert
@@ -33,7 +33,7 @@ def workflow(day_dir, args, pj_dir):
         file_list_path = make_list(test_name, output_dir, date)
         model = get_pretrained_model(args)
         print("Post process: {}, svm: {}".format(post_process, svm))
-        predict(args, model, file_list_path, pj_dir, output_dir, date, args.result_name,
+        predict(args, model, file_list_path, output_dir, date, args.result_name,
                 post_process=post_process, svm=svm)
     if args.remove_intermediate:
         shutil.rmtree(os.path.join(output_dir, 'intermediate'))
@@ -43,12 +43,11 @@ def workflow(day_dir, args, pj_dir):
 
 
 def main(args=None):
-    pj_dir = os.path.dirname(os.path.realpath(__file__))
     source_dir = args.source_dir
     cur_dir_name = get_path_leaf(source_dir)
     if re.match('\d\d\d\d-\d\d-\d\d', cur_dir_name):
         day_dir = source_dir
-        workflow(day_dir, args, pj_dir)
+        workflow(day_dir, args)
     else:
         sub_dirs = os.listdir(source_dir)
         day_dirs = []
@@ -58,7 +57,7 @@ def main(args=None):
             else:
                 day_dirs.append(os.path.join(source_dir, sub_dir))
         for day_dir in day_dirs:
-            workflow(day_dir, args, pj_dir)
+            workflow(day_dir, args)
 
 
 if __name__ == '__main__':

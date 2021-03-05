@@ -61,6 +61,8 @@ def parse_args():
                               help="Flag to check if we need to predict the preprocessed data")
     pipline_args.add_argument("--remove_intermediate", default=False, action="store_true",
                               help="Flag to check if we eneed to remove the intermediate files")
+    pipline_args.add_argument("--threshold", default=0.3, type=float,
+                              help="Threshold value for post processing, only effect when --post_process is given.")
     pipline_args.add_argument("--post_process", default=False, action="store_true",
                               help="Flag to check if we need to post process the result from our network")
     pipline_args.add_argument("--svm", default=False, action="store_true",

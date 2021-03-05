@@ -4,7 +4,6 @@ import os
 import numpy as np
 import cv2
 import imutils
-from detection.detect import detect
 from utils import get_path_leaf
 
 
