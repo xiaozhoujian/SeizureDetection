@@ -38,7 +38,7 @@ Download repository
 ```
 $ git clone https://github.com/xiaozhoujian/SeizureDetection.git
 ```
-Retrieve [pretrained model](https://drive.google.com/uc?id=15nMFpl7hYT6YsnBaRzjUli6jsc6VFW77&export=download). 
+Retrieve [pretrained model](https://drive.google.com/u/0/uc?id=1S78uWQTvP4B1DQ5B-9EEyEomJIU6-gH2&export=download). 
 Put it to the results_mice_resnext101 folder under the project.
 
 Before running the scripts, be sure you have downloaded the pretrained model and installed all requirements
