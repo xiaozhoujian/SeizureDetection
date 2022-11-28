@@ -1,0 +1,12 @@
+/dataset/mice_labels/*
+!/dataset/mice_labels/class.txt
+!/dataset/mice_labels/K25_train.txt
+!/dataset/mice_labels/K25_val_case.txt
+!/dataset/mice_labels/K25_val_control.txt
+!/dataset/mice_labels/online_test.txt
+/pretrained_model/*
+/scripts/*
+!/scripts/train.sh
+!/scripts/online_test.sh
+.idea/
+.DS_Store
